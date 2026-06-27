@@ -27,11 +27,11 @@ export const STR = {
   cpu: "CPU",
 
   brandonName: "BRANDON",
-  brandonTag: "THE BRAWLER",
+  brandonTag: "WEST COSE DESIGNS",
   garetName: "GARET",
-  garetTag: "THE BREAKER",
+  garetTag: "THE HACKER",
   moName: "MO",
-  moTag: "THE NEW CHALLENGER",
+  moTag: "MOJO!",
   stevenName: "STEVEN",
   stevenTag: "BOSS MAN",
   tomName: "TOM",
@@ -53,7 +53,7 @@ export const STR = {
   perfect: "PERFECT",
 
   haymaker: "WestCose",
-  cyclone: "Bruhhhh",
+  cyclone: "The Hacker",
   moSpecial: "Mojo",
   stevenSpecial: "Boss Man",
   tomSpecial: "The Lad",

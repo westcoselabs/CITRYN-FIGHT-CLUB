@@ -135,6 +135,7 @@ const BG = {};       // key -> Image
 const CUTSCENE = {}; // key -> HTMLVideoElement
 const SOUNDS = {};   // name -> HTMLAudioElement (template)
 const IMG_CACHE_BUST = "2026-06-27-cutscene-refresh-1";
+const AUDIO_CACHE_BUST = "2026-06-27-audio-refresh-1";
 let musicEl = null;
 const _tc = document.createElement("canvas");   // scratch canvas for tinting
 const _tx = _tc.getContext("2d");
@@ -274,11 +275,17 @@ function loadSound(name, file) {
     a.preload = "auto";
     a.oncanplaythrough = () => res(true);
     a.onerror = () => res(false);
-    a.src = `./assets/${file}`;
+    a.src = `./assets/${file}?v=${AUDIO_CACHE_BUST}`;
     SOUNDS[name] = a;
     // some browsers won't fire canplaythrough until interaction; resolve soon anyway
     setTimeout(() => res(true), 1500);
   });
+}
+
+function soundDurationFrames(name, fallbackFrames = 70) {
+  const sound = SOUNDS[name];
+  if (!sound || !Number.isFinite(sound.duration) || sound.duration <= 0) return fallbackFrames;
+  return Math.ceil(sound.duration * 60);
 }
 
 const VOL = { music: 0.30, sfx: 0.65, vo: 0.9 };
@@ -451,7 +458,7 @@ const CHARS = {
       kick:   { key: "g_kick",  frames: 1, hold: 8,  loop: false },
       special:{ key: "g_special", frames: 1, hold: 8, loop: false },
       hit:    { key: "g_hurt",  frames: 1, hold: 9,  loop: false },
-      ko:     { key: "g_dead",  frames: 1, hold: 9,  loop: false, scale: 0.94 },
+      ko:     { key: "g_dead",  frames: 1, hold: 9,  loop: false, scale: 0.86 },
       win:    { key: "g_won",   frames: 1, hold: 10, loop: false },
     },
   },
@@ -553,9 +560,9 @@ const CINEMATIC_SPECIAL_DUR = {
   freeze: 24,
   overlay: 42,
   cinematic: 120,
-  attacker_anim: 54,
-  defender_hurt: 70,
-  recover: 28,
+  attacker_anim: 78,
+  defender_hurt: 96,
+  recover: 32,
 };
 const CINEMATIC_SPECIAL_FALLBACK_VIDEO_FRAMES = CINEMATIC_SPECIAL_DUR.cinematic;
 const CINEMATIC_SPECIAL_MAX_OVERLAY_WAIT = 180;
@@ -638,6 +645,7 @@ function lockFighterForCinematic(f, state) {
 
 function fighterControl(f, opp, IN) {
   if (f.state === "ko") return;
+  if (f.state === "special_win") return;
   // auto-face when grounded & free
   if (f.onGround && actionable(f)) f.facing = (opp.x >= f.x) ? 1 : -1;
   let mv = 0;
@@ -872,6 +880,7 @@ function animForState(f) {
     case "special_hurt": return "hit";
     case "special_cinematic": return f.spAnim || "special";
     case "win": return "win";
+    case "special_win": return "special";
     case "block": return "block";
     case "crouch": return "crouch";
     case "special": return f.spAnim || "special";
@@ -907,8 +916,10 @@ const match = {
   fighters: [null, null],
   roundNum: 1, timer: ROUND_TIME, timerF: 0,
   phase: "intro", phaseT: 0,
+  fightCueFrame: 70, fightStartFrame: 96,
   banner: "", bannerT: 0, winner: -1,
   specialSeq: null,
+  specialFinishPoseSide: null,
 };
 // menu cursors
 const menu = { modeIdx: 0, p1sel: 0, p1lock: false, p2sel: 1, p2lock: false, stageIdx: 0, overIdx: 0 };
@@ -921,19 +932,24 @@ function startFightScene() {
   warmCutscene(match.fighters[1].cd.cinematic.cutscene);
   match.fighters[0].roundWins = 0; match.fighters[1].roundWins = 0;
   match.roundNum = 1;
+  match.specialFinishPoseSide = null;
   match.scene = "fight";
   beginRound();
 }
 function beginRound() {
   match.specialSeq = null;
+  match.specialFinishPoseSide = null;
   resetForRound(match.fighters[0], 0);
   resetForRound(match.fighters[1], 1);
   match.timer = ROUND_TIME; match.timerF = 0;
   match.phase = "intro"; match.phaseT = 0;
   const rn = match.roundNum;
+  const roundVoice = rn === 1 ? "round1" : rn === 2 ? "round2" : "round3";
   match.banner = rn === 1 ? STR.round1 : rn === 2 ? STR.round2 : STR.round3;
-  match.bannerT = 80;
-  vo(rn === 1 ? "round1" : rn === 2 ? "round2" : "round3");
+  match.fightCueFrame = Math.max(70, soundDurationFrames(roundVoice, 84) + 12);
+  match.fightStartFrame = match.fightCueFrame + 26;
+  match.bannerT = Math.max(80, match.fightCueFrame - 4);
+  vo(roundVoice);
 }
 function endRound(winnerSide, reason) {
   match.phase = "roundover"; match.phaseT = 0;
@@ -943,7 +959,12 @@ function endRound(winnerSide, reason) {
   if (reason === STR.ko) vo("ko");
   if (winnerSide >= 0) {
     match.fighters[winnerSide].roundWins++;
-    match.fighters[winnerSide].state = "win";
+    if (match.specialFinishPoseSide === winnerSide) {
+      match.fighters[winnerSide].state = "special_win";
+      match.fighters[winnerSide].spAnim = match.fighters[winnerSide].cd.cinematic.postAnim || "special";
+    } else {
+      match.fighters[winnerSide].state = "win";
+    }
     match.fighters[winnerSide].anim = 0;
   }
   match.winner = winnerSide;
@@ -975,6 +996,7 @@ function updateCinematicSpecial() {
       sfx("kick", 0.85);
       if (defender.hp <= 0) {
         seq.ko = true;
+        match.specialFinishPoseSide = attacker.side;
         doKO(attacker, defender);
         stopCutscenePlayback(seq.cutscene);
         match.specialSeq = null;
@@ -1029,8 +1051,8 @@ function updateFight() {
   // phase timing
   if (match.phase === "intro") {
     match.phaseT++;
-    if (match.phaseT === 70) { match.banner = STR.fight; match.bannerT = 50; vo("fight"); }
-    if (match.phaseT >= 96) { match.phase = "fight"; match.bannerT = 0; }
+    if (match.phaseT === match.fightCueFrame) { match.banner = STR.fight; match.bannerT = 50; vo("fight"); }
+    if (match.phaseT >= match.fightStartFrame) { match.phase = "fight"; match.bannerT = 0; }
     // idle breathing only
     decayTrails(a); decayTrails(b); updateParts();
     if (match.bannerT > 0) match.bannerT--;
@@ -1362,8 +1384,9 @@ function drawCinematicSpecialPresentation() {
   }
 
   if (seq.phase === "attacker_anim") {
-    ctx.fillStyle = "rgba(8,6,16,0.68)";
+    ctx.fillStyle = "rgba(8,6,16,0.56)";
     ctx.fillRect(0, 0, VW, VH);
+    drawCinematicPortrait(attacker, VW * 0.34, VH - 22, 455, attacker.facing < 0, 0.98);
   }
 
   if (seq.phase === "defender_hurt") {
