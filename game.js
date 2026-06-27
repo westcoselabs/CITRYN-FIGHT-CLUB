@@ -1,7 +1,7 @@
 // ===========================================================================
 //  CITRYN FIGHT CLUB  -  client-only 2D arcade fighter (canvas, no build step)
 // ===========================================================================
-import { STR } from "./strings.js";
+import { STR } from "./strings.js?v=2026-06-27-run-sync-1";
 
 // ---------- virtual resolution ----------
 const VW = 1280, VH = 720;
@@ -419,7 +419,7 @@ const CHARS = {
   brandon: {
     key: "brandon", name: STR.brandonName, tag: STR.brandonTag,
     drawH: 300, nativeFacing: 1, scaleMode: "fixed",
-    walk: 6.5, back: 5.1, air: 5.9, jumpV: 15.6, grav: 0.82, kbTaken: 0.86,
+    walk: 7.2, back: 7.2, air: 6.4, jumpV: 15.6, grav: 0.82, kbTaken: 0.86,
     theme: { main: "#ff7a33", glow: "#ffce4a", dark: "#7a1f12" },
     specialName: STR.haymaker, specialKind: "haymaker",
     cinematic: { cutscene: "brandon", postAnim: "special", hurtTint: "#ffce4a" },
@@ -427,7 +427,7 @@ const CHARS = {
     kick:  { startup: 9, active: 5, recovery: 17, dmg: 12, range: 152, reach: 48, kb: 5.4, hitstun: 19, type: "kick" },
     anim: {
       idle:   { key: "b_idle",  frames: 1, hold: 12, loop: true },
-      walk:   { key: "b_run",   frames: 8, hold: 5,  loop: true },
+      walk:   { key: "b_run",   frames: 8, hold: 5,  loop: true, distancePerFrame: 28 },
       jump:   { key: "b_jump",  frames: 1, hold: 20, loop: false },
       crouch: { key: "b_duck",  frames: 1, hold: 10, loop: false },
       block:  { key: "b_block", frames: 1, hold: 10, loop: false },
@@ -442,7 +442,7 @@ const CHARS = {
   garet: {
     key: "garet", name: STR.garetName, tag: STR.garetTag,
     drawH: 300, nativeFacing: 1, scaleMode: "fixed",
-    walk: 7.8, back: 6.2, air: 7.0, jumpV: 16.9, grav: 0.80, kbTaken: 1.10,
+    walk: 7.2, back: 7.2, air: 6.4, jumpV: 16.9, grav: 0.80, kbTaken: 1.10,
     theme: { main: "#00e5ff", glow: "#9bffec", dark: "#0b3b6b" },
     specialName: STR.cyclone, specialKind: "cyclone",
     cinematic: { cutscene: "garet", postAnim: "special", hurtTint: "#9bffec" },
@@ -450,7 +450,7 @@ const CHARS = {
     kick:  { startup: 8, active: 6, recovery: 15, dmg: 9, range: 162, reach: 52, kb: 4.6, hitstun: 16, type: "kick" },
     anim: {
       idle:   { key: "g_idle",  frames: 1, hold: 12, loop: true },
-      walk:   { key: "g_run",   frames: 8, hold: 5,  loop: true },
+      walk:   { key: "g_run",   frames: 8, hold: 5,  loop: true, distancePerFrame: 28 },
       jump:   { key: "g_jump",  frames: 1, hold: 20, loop: false },
       crouch: { key: "g_duck",  frames: 1, hold: 10, loop: false },
       block:  { key: "g_block", frames: 1, hold: 10, loop: false },
@@ -465,7 +465,7 @@ const CHARS = {
   mo: {
     key: "mo", name: STR.moName, tag: STR.moTag,
     drawH: 300, nativeFacing: 1, scaleMode: "fixed",
-    walk: 7.2, back: 5.7, air: 6.5, jumpV: 16.2, grav: 0.81, kbTaken: 0.98,
+    walk: 7.2, back: 7.2, air: 6.4, jumpV: 16.2, grav: 0.81, kbTaken: 0.98,
     theme: { main: "#ffd24a", glow: "#ff6a3d", dark: "#6b2b0b" },
     specialName: STR.moSpecial, specialKind: "haymaker",
     cinematic: { cutscene: "mo", postAnim: "special", hurtTint: "#ff6a3d" },
@@ -473,13 +473,13 @@ const CHARS = {
     kick:  { startup: 8, active: 5, recovery: 16, dmg: 10, range: 158, reach: 50, kb: 5.0, hitstun: 17, type: "kick" },
     anim: {
       idle:   { key: "m_idle",  frames: 1, hold: 12, loop: true },
-      walk:   { key: "m_run",   frames: 8, hold: 5,  loop: true },
+      walk:   { key: "m_run",   frames: 8, hold: 5,  loop: true, distancePerFrame: 28 },
       jump:   { key: "m_jump",  frames: 1, hold: 20, loop: false },
       crouch: { key: "m_duck",  frames: 1, hold: 10, loop: false },
       block:  { key: "m_block", frames: 1, hold: 10, loop: false },
       punch:  { key: "m_punch", frames: 1, hold: 8,  loop: false },
       kick:   { key: "m_kick",  frames: 1, hold: 8,  loop: false },
-      special:{ key: "m_special", frames: 1, hold: 8, loop: false },
+      special:{ key: "m_special", frames: 1, hold: 8, loop: false, scale: 1.12 },
       hit:    { key: "m_hurt",  frames: 1, hold: 9,  loop: false },
       ko:     { key: "m_dead",  frames: 1, hold: 9,  loop: false },
       win:    { key: "m_won",   frames: 1, hold: 10, loop: false },
@@ -488,7 +488,7 @@ const CHARS = {
   steven: {
     key: "steven", name: STR.stevenName, tag: STR.stevenTag,
     drawH: 300, nativeFacing: 1, scaleMode: "fixed",
-    walk: 6.9, back: 5.4, air: 6.2, jumpV: 15.9, grav: 0.82, kbTaken: 0.92,
+    walk: 7.2, back: 7.2, air: 6.4, jumpV: 15.9, grav: 0.82, kbTaken: 0.92,
     theme: { main: "#f0f4ff", glow: "#ff9a3d", dark: "#3b2a18" },
     specialName: STR.stevenSpecial, specialKind: "haymaker",
     cinematic: { cutscene: "steven", postAnim: "special", hurtTint: "#ff9a3d" },
@@ -496,7 +496,7 @@ const CHARS = {
     kick:  { startup: 9, active: 5, recovery: 16, dmg: 11, range: 160, reach: 52, kb: 5.2, hitstun: 18, type: "kick" },
     anim: {
       idle:   { key: "s_idle",  frames: 1, hold: 12, loop: true },
-      walk:   { key: "s_run",   frames: 8, hold: 5,  loop: true },
+      walk:   { key: "s_run",   frames: 8, hold: 5,  loop: true, distancePerFrame: 28 },
       jump:   { key: "s_jump",  frames: 1, hold: 20, loop: false, scale: 1.26 },
       crouch: { key: "s_duck",  frames: 1, hold: 10, loop: false },
       block:  { key: "s_block", frames: 1, hold: 10, loop: false },
@@ -511,7 +511,7 @@ const CHARS = {
   tom: {
     key: "tom", name: STR.tomName, tag: STR.tomTag,
     drawH: 300, nativeFacing: 1, scaleMode: "fixed",
-    walk: 7.1, back: 5.6, air: 6.4, jumpV: 16.0, grav: 0.82, kbTaken: 0.96,
+    walk: 7.2, back: 7.2, air: 6.4, jumpV: 16.0, grav: 0.82, kbTaken: 0.96,
     theme: { main: "#7cff9b", glow: "#e8ff5a", dark: "#1f5c2e" },
     specialName: STR.tomSpecial, specialKind: "cyclone",
     cinematic: { cutscene: "tom", postAnim: "special", hurtTint: "#e8ff5a" },
@@ -519,7 +519,7 @@ const CHARS = {
     kick:  { startup: 8, active: 5, recovery: 16, dmg: 10, range: 160, reach: 52, kb: 5.0, hitstun: 17, type: "kick" },
     anim: {
       idle:   { key: "t_idle",  frames: 1, hold: 12, loop: true },
-      walk:   { key: "t_run",   frames: 8, hold: 5,  loop: true },
+      walk:   { key: "t_run",   frames: 8, hold: 5,  loop: true, distancePerFrame: 28 },
       jump:   { key: "t_jump",  frames: 1, hold: 20, loop: false },
       crouch: { key: "t_duck",  frames: 1, hold: 10, loop: false },
       block:  { key: "t_block", frames: 1, hold: 10, loop: false },
@@ -560,13 +560,13 @@ const CINEMATIC_SPECIAL_DUR = {
   freeze: 24,
   overlay: 42,
   cinematic: 120,
-  attacker_anim: 78,
+  attacker_anim: 36,
   defender_hurt: 96,
   recover: 32,
 };
 const CINEMATIC_SPECIAL_FALLBACK_VIDEO_FRAMES = CINEMATIC_SPECIAL_DUR.cinematic;
 const CINEMATIC_SPECIAL_MAX_OVERLAY_WAIT = 180;
-const CINEMATIC_SPECIAL_DAMAGE_FRAME = 18;
+const CINEMATIC_SPECIAL_DAMAGE_FRAME = 28;
 function makeFighter(charKey, side, isCPU) {
   const cd = CHARS[charKey];
   return {
@@ -583,7 +583,7 @@ function makeFighter(charKey, side, isCPU) {
     flash: 0, flashColor: "#fff", recoil: 0,
     trail: [], superFlash: 0,
     ai: { t: 0, cool: 0, blockT: 0, want: null },
-    animName: "idle", animFrame: 0, animElapsed: 0, spAnim: "special",
+    animName: "idle", animFrame: 0, animElapsed: 0, spAnim: "special", freezeAnim: "idle",
   };
 }
 function resetForRound(f, side) {
@@ -616,6 +616,8 @@ function startCinematicSpecial(f, opp) {
   const attackerSide = f.side;
   const defenderSide = opp.side;
   const cutscene = f.cd.cinematic.cutscene;
+  const attackerFreezeAnim = animForState(f);
+  const defenderFreezeAnim = animForState(opp);
   match.specialSeq = {
     attackerSide,
     defenderSide,
@@ -628,8 +630,10 @@ function startCinematicSpecial(f, opp) {
     ko: false,
   };
   if (match.mode !== "training") f.meter = 0;
-  lockFighterForCinematic(f, "special_cinematic");
-  lockFighterForCinematic(opp, "special_hurt");
+  f.freezeAnim = attackerFreezeAnim;
+  opp.freezeAnim = defenderFreezeAnim;
+  lockFighterForCinematic(f, "special_freeze");
+  lockFighterForCinematic(opp, "special_freeze");
   f.spAnim = f.cd.cinematic.postAnim || "special";
   opp.flash = 10; opp.flashColor = f.cd.cinematic.hurtTint || f.cd.theme.glow;
   fx.slowmo = 0; fx.hitstop = 0; fx.flashScreen = 12; fx.flashCol = f.cd.theme.main;
@@ -877,6 +881,7 @@ function animForState(f) {
     case "ko": return "ko";
     case "knockdown": return "hit";
     case "hit": return "hit";
+    case "special_freeze": return f.freezeAnim || "idle";
     case "special_hurt": return "hit";
     case "special_cinematic": return f.spAnim || "special";
     case "win": return "win";
@@ -896,6 +901,16 @@ function setAnim(f, name) {
 }
 function advanceAnim(f) {
   const an = f.cd.anim[f.animName]; if (!an) return;
+  if (an.distancePerFrame) {
+    f.animElapsed += Math.abs(f.vx);
+    const steps = Math.floor(f.animElapsed / an.distancePerFrame);
+    if (steps > 0) {
+      f.animElapsed -= steps * an.distancePerFrame;
+      if (an.loop) f.animFrame = (f.animFrame + steps) % an.frames;
+      else f.animFrame = Math.min(f.animFrame + steps, an.frames - 1);
+    }
+    return;
+  }
   f.animElapsed++;
   if (f.animElapsed >= an.hold) {
     f.animElapsed = 0;
@@ -975,8 +990,9 @@ function updateCinematicSpecial() {
   if (!seq) return false;
   const attacker = match.fighters[seq.attackerSide];
   const defender = match.fighters[seq.defenderSide];
-  lockCinematicFrame(attacker, "special_cinematic");
-  lockCinematicFrame(defender, "special_hurt");
+  const phaseStates = cinematicSpecialStates(seq.phase);
+  lockCinematicFrame(attacker, phaseStates.attacker);
+  lockCinematicFrame(defender, phaseStates.defender);
   attacker.facing = defender.x >= attacker.x ? 1 : -1;
   defender.facing = attacker.x >= defender.x ? 1 : -1;
 
@@ -1031,6 +1047,11 @@ function updateCinematicSpecial() {
   }
   match.specialSeq = null;
   return false;
+}
+function cinematicSpecialStates(phase) {
+  if (phase === "attacker_anim") return { attacker: "special_cinematic", defender: "special_freeze" };
+  if (phase === "defender_hurt" || phase === "recover") return { attacker: "special_cinematic", defender: "special_hurt" };
+  return { attacker: "special_freeze", defender: "special_freeze" };
 }
 function lockCinematicFrame(f, state) {
   if (f.state !== "ko") f.state = state;
