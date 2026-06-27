@@ -1,0 +1,23 @@
+id,role,type,description,size_ratio,style_line_ref,source
+brandon_stance,fighter sprite Brandon idle/guard,sprite,Brandon backwards-cap brawler in fighting stance fists up facing right,1:1 transparent,STYLE FORMULA,reference_media[brandon]
+brandon_punch,fighter sprite Brandon punch,sprite,Brandon throwing a straight punch arm fully extended facing right,1:1 transparent,STYLE FORMULA,reference_media[brandon]
+brandon_kick,fighter sprite Brandon kick,sprite,Brandon throwing a front kick leg extended forward facing right,1:1 transparent,STYLE FORMULA,reference_media[brandon]
+garet_stance,fighter sprite Garet idle/guard,sprite,Garet curly-hair polo breakdancer in fighting stance facing right,1:1 transparent,STYLE FORMULA,reference_media[garet]
+garet_punch,fighter sprite Garet jab,sprite,Garet throwing a quick jab arm extended facing right,1:1 transparent,STYLE FORMULA,reference_media[garet]
+garet_kick,fighter sprite Garet spin kick,sprite,Garet spinning roundhouse kick leg swung out facing right,1:1 transparent,STYLE FORMULA,reference_media[garet]
+stage_lot,stage background The Lot,background,sunset parking lot of abandoned 3-story office building empty foreground fighting plane,16:9,STYLE FORMULA,reference_media[stage]
+stage_boiler,stage background Boiler Room,background,underground boiler room fight pit chain-link fence pipes caged work light graffiti steam,16:9,STYLE FORMULA,generate
+thumbnail,marketplace cover,background,Brandon and Garet squaring off in the lot at sunset big CITRYN FIGHT CLUB logo,16:9,STYLE FORMULA,generate
+favicon,marketplace icon,ui,clenched neon fist over cyan-glow C mark dark background,1:1,STYLE FORMULA,generate
+music_fight,match/menu music loop,audio,gritty underground boom-bap lo-fi hip-hop loop heavy drums dark bass,30s loop,STYLE TOKEN,generate
+sfx_punch,punch impact,audio,heavy meaty fist impact thud single hit,1s,n/a,generate
+sfx_kick,kick impact,audio,sharp hard kick crack impact single hit,1s,n/a,generate
+sfx_block,block,audio,muffled padded block thump single hit,1s,n/a,generate
+sfx_whiff,whiff,audio,fast air whoosh swing miss,1s,n/a,generate
+sfx_special,special hit,audio,deep cinematic bass-drop impact sting with crunch,2s,n/a,generate
+vo_round1,announcer round one,audio,gritty male fight announcer says Round One,n/a,n/a,generate
+vo_round2,announcer round two,audio,gritty male fight announcer says Round Two,n/a,n/a,generate
+vo_round3,announcer round three,audio,gritty male fight announcer says Round Three,n/a,n/a,generate
+vo_fight,announcer fight,audio,gritty male fight announcer shouts Fight,n/a,n/a,generate
+vo_ko,announcer KO,audio,gritty male fight announcer shouts K O,n/a,n/a,generate
+vo_win,announcer win,audio,gritty male fight announcer says You Win,n/a,n/a,generate

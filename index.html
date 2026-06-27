@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#0c0a16">
+<title>Citryn Fight Club</title>
+<link rel="icon" href="./assets/favicon.jpg">
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#0c0a16;
+    font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;
+    -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;touch-action:none;}
+  #wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(120% 120% at 50% 0%,#1a1430 0%,#0c0a16 70%);}
+  canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges;
+    box-shadow:0 0 60px rgba(0,229,255,.18),0 0 0 2px rgba(0,229,255,.10) inset;}
+  #dev{position:fixed;top:4px;left:4px;color:#19e3a0;font:12px/1.3 monospace;display:none;
+    text-shadow:0 0 4px #000;z-index:50;white-space:pre;}
+  #loading{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    color:#ffb33e;font-weight:bold;letter-spacing:2px;z-index:40;gap:14px;}
+  #loading .bar{width:240px;height:8px;background:#241c3a;border:1px solid #00e5ff55;border-radius:6px;overflow:hidden;}
+  #loading .fill{height:100%;width:0;background:linear-gradient(90deg,#00e5ff,#ffb33e);transition:width .2s;}
+  #loading small{color:#7a6ca8;letter-spacing:1px;font-weight:normal;}
+</style>
+</head>
+<body>
+<div id="wrap"><canvas id="c"></canvas></div>
+<div id="dev"></div>
+<div id="loading">
+  <div style="font-size:20px;text-shadow:0 0 12px #ff5c33">CITRYN FIGHT CLUB</div>
+  <div class="bar"><div class="fill" id="loadfill"></div></div>
+  <small id="loadtxt">LOADING…</small>
+</div>
+<script type="module" src="./game.js"></script>
+</body>
+</html>
