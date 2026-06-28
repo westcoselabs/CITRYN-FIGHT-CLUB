@@ -147,8 +147,9 @@ const ASSET = {};    // key -> {img, ft, cellW, srcLeft, srcTop, srcW, srcH}
 const BG = {};       // key -> Image
 const CUTSCENE = {}; // key -> HTMLVideoElement
 const SOUNDS = {};   // name -> HTMLAudioElement (template)
-const IMG_CACHE_BUST = "2026-06-27-cutscene-refresh-1";
+const IMG_CACHE_BUST = "2026-06-28-cutscene-buffer-1";
 const AUDIO_CACHE_BUST = "2026-06-27-audio-refresh-1";
+const cutsceneLayer = document.getElementById("cutscene-layer");
 let musicEl = null;
 const _tc = document.createElement("canvas");   // scratch canvas for tinting
 const _tx = _tc.getContext("2d");
@@ -200,11 +201,16 @@ function loadBG(key, file) {
 
 function loadCutscene(key, file) {
   const v = document.createElement("video");
-  v.preload = "metadata";
+  v.preload = "auto";
   v.playsInline = true;
   v.disablePictureInPicture = true;
+  v.controls = false;
+  v.tabIndex = -1;
+  v.fetchPriority = "high";
+  v.setAttribute("webkit-playsinline", "");
   v.onerror = () => console.warn("cutscene load failed:", file);
   v.src = `./assets/${file}?v=${IMG_CACHE_BUST}`;
+  if (cutsceneLayer) cutsceneLayer.appendChild(v);
   v.load();
   CUTSCENE[key] = v;
   return v;
@@ -226,14 +232,29 @@ function startCutscenePlayback(key) {
   const v = ensureCutscene(key);
   if (!v) return false;
   try {
+    for (const other of Object.values(CUTSCENE)) other.classList.remove("active");
     v.pause();
     v.currentTime = 0;
+    v.playbackRate = 1;
     v.muted = muted;
     v.volume = VOL.sfx;
+    v.classList.add("active");
+    if (cutsceneLayer) cutsceneLayer.classList.add("active");
     const p = v.play();
-    if (p && p.catch) p.catch(() => {});
+    if (p && p.catch) p.catch(() => {
+      // Some mobile browsers block delayed playback with audio even after the
+      // player has interacted. Retry muted so the cinematic still runs.
+      v.muted = true;
+      const retry = v.play();
+      if (retry && retry.catch) retry.catch(() => {
+        v.classList.remove("active");
+        if (cutsceneLayer) cutsceneLayer.classList.remove("active");
+      });
+    });
     return true;
   } catch (e) {
+    v.classList.remove("active");
+    if (cutsceneLayer) cutsceneLayer.classList.remove("active");
     return false;
   }
 }
@@ -242,6 +263,8 @@ function stopCutscenePlayback(key) {
   const v = CUTSCENE[key];
   if (!v) return;
   try { v.pause(); } catch (e) {}
+  v.classList.remove("active");
+  if (cutsceneLayer && !cutsceneLayer.querySelector("video.active")) cutsceneLayer.classList.remove("active");
 }
 
 function cutsceneDurationFrames(key) {
@@ -253,7 +276,7 @@ function cutsceneDurationFrames(key) {
 
 function cutsceneReadyForPlayback(key) {
   const v = ensureCutscene(key);
-  return !!(v && v.readyState >= 2 && v.videoWidth && v.videoHeight && Number.isFinite(v.duration) && v.duration > 0);
+  return !!(v && v.readyState >= 3 && v.videoWidth && v.videoHeight && Number.isFinite(v.duration) && v.duration > 0);
 }
 
 // Draw cell `frameIdx` of `key` scaled so its content height == H, anchored
@@ -577,14 +600,15 @@ const CINEMATIC_SPECIAL_DAMAGE = Math.round(MAXHP * 0.75);
 const CINEMATIC_SPECIAL_PHASES = ["freeze", "overlay", "cinematic", "attacker_anim", "defender_hurt", "recover"];
 const CINEMATIC_SPECIAL_DUR = {
   freeze: 24,
-  overlay: 42,
+  overlay: 120,
   cinematic: 120,
   attacker_anim: 36,
   defender_hurt: 96,
   recover: 32,
 };
 const CINEMATIC_SPECIAL_FALLBACK_VIDEO_FRAMES = CINEMATIC_SPECIAL_DUR.cinematic;
-const CINEMATIC_SPECIAL_MAX_OVERLAY_WAIT = 180;
+const CINEMATIC_SPECIAL_MAX_OVERLAY_WAIT = 360;
+const CINEMATIC_SPECIAL_END_PAD_FRAMES = 30;
 const CINEMATIC_SPECIAL_DAMAGE_FRAME = 28;
 function makeFighter(charKey, side, isCPU) {
   const cd = CHARS[charKey];
@@ -1088,7 +1112,7 @@ function lockCinematicFrame(f, state) {
 }
 
 function cinematicSpecialPhaseDuration(seq) {
-  return seq.phase === "cinematic" ? seq.videoFrames : CINEMATIC_SPECIAL_DUR[seq.phase];
+  return seq.phase === "cinematic" ? seq.videoFrames + CINEMATIC_SPECIAL_END_PAD_FRAMES : CINEMATIC_SPECIAL_DUR[seq.phase];
 }
 
 function updateFight() {
@@ -1410,8 +1434,10 @@ function drawCinematicSpecialPresentation() {
   ctx.fillRect(0, 0, VW, VH);
   ctx.globalAlpha = 1;
 
-  const videoDrawn = seq.phase === "cinematic" && drawCutsceneVideo(seq.cutscene);
-  if (videoDrawn) {
+  // The active <video> is composited directly above the canvas. This is much
+  // smoother than copying decoded frames through drawImage at 60 FPS.
+  const videoPresented = seq.phase === "cinematic" && cutsceneLayer && cutsceneLayer.classList.contains("active");
+  if (videoPresented) {
     ctx.restore();
     return;
   }
@@ -1448,27 +1474,6 @@ function drawCinematicSpecialPresentation() {
     ctx.globalAlpha = 1 - p;
   }
   ctx.restore();
-}
-
-function drawCutsceneVideo(key) {
-  const v = CUTSCENE[key];
-  if (!v || v.readyState < 2 || !v.videoWidth || !v.videoHeight) return false;
-  try {
-    const videoAR = v.videoWidth / v.videoHeight;
-    const viewAR = VW / VH;
-    let sx = 0, sy = 0, sw = v.videoWidth, sh = v.videoHeight;
-    if (videoAR > viewAR) {
-      sw = v.videoHeight * viewAR;
-      sx = (v.videoWidth - sw) / 2;
-    } else {
-      sh = v.videoWidth / viewAR;
-      sy = (v.videoHeight - sh) / 2;
-    }
-    ctx.drawImage(v, sx, sy, sw, sh, 0, 0, VW, VH);
-    return true;
-  } catch (e) {
-    return false;
-  }
 }
 
 function drawCinematicPortrait(f, x, y, h, flip, alpha) {

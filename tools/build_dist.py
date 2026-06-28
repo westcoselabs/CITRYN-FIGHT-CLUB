@@ -9,6 +9,11 @@ CHAR_DIRS = {"Brandon", "Garet", "Mo", "Steven", "Tom"}
 CHAR_MAX_H = 480     # poses/sheets only ever render ~300px tall in-game
 STAGE_MAX_W = 1280   # stages are drawn at 1280x720
 RASTER = (".png", ".jpg", ".jpeg", ".webp")
+# Horizontal animated stage sheets contain multiple full-width frames. Treating
+# their total width like a single background destroys each frame's resolution.
+ANIMATED_STAGE_SHEETS = {
+    "assets/Truxton/Cars-sprite.webp": 10,
+}
 
 if os.path.exists(DIST):
     shutil.rmtree(DIST)
@@ -30,8 +35,14 @@ def optimize(src, dst, rel):
         if h > CHAR_MAX_H:
             nw = max(1, round(w * CHAR_MAX_H / h)); im = im.resize((nw, CHAR_MAX_H), Image.LANCZOS)
     else:
-        if w > STAGE_MAX_W:
-            nh = max(1, round(h * STAGE_MAX_W / w)); im = im.resize((STAGE_MAX_W, nh), Image.LANCZOS)
+        sheet_frames = ANIMATED_STAGE_SHEETS.get(rel, 1)
+        max_w = STAGE_MAX_W * sheet_frames
+        if w > max_w:
+            nh = max(1, round(h * max_w / w)); im = im.resize((max_w, nh), Image.LANCZOS)
+        elif sheet_frames > 1:
+            # Already at or below one 1280px frame per cell: retain the exact
+            # source encoding instead of introducing another lossy WebP pass.
+            shutil.copy2(src, dst); return
     if ext in (".jpg", ".jpeg"):
         im.convert("RGB").save(dst, quality=82, optimize=True)
     elif ext == ".webp":
