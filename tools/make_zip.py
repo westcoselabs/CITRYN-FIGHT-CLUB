@@ -2,7 +2,8 @@ import os, zipfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "citryn-fight-club.zip")
-ROOT_FILES = ["index.html", "logic.js", "game.js", "strings.js"]
+# real-time multiplayer build: server.js is the code module (NOT logic.js).
+ROOT_FILES = ["index.html", "server.js", "game.js", "net.js", "strings.js"]
 ASSET_DIR = "assets"
 
 if os.path.exists(OUT):
