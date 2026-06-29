@@ -406,6 +406,10 @@ function pollPads() {
 let touchButtons = [];   // {x,y,w,h,tok,label,hold}
 const touchActive = new Map();   // touchId -> token
 let isTouch = (typeof window !== "undefined") && ("ontouchstart" in window || (navigator.maxTouchPoints || 0) > 0);
+const domMobileControls = document.getElementById("mobile-controls");
+const domMobileControlsMedia = window.matchMedia("(hover:none), (pointer:coarse), (max-width:900px)");
+const usesDOMMobileControls = () => !!(domMobileControls && domMobileControlsMedia.matches);
+const fromDOMMobileControls = e => !!(e.target && e.target.closest && e.target.closest("#mobile-controls"));
 function clearTouch() { touchButtons = []; }
 function addBtn(x, y, w, h, tok, label) { touchButtons.push({ x, y, w, h, tok, label }); }
 
@@ -430,12 +434,12 @@ function handleTouchEnd(id) {
   touchActive.delete(id);
 }
 addEventListener("touchstart", e => {
-  if (fromNetUI(e)) return;
+  if (fromNetUI(e) || fromDOMMobileControls(e)) return;
   for (const t of e.changedTouches) { const v = toVirtual(t.clientX, t.clientY); handleTouchStart(t.identifier, v.x, v.y); }
   e.preventDefault();
 }, { passive: false });
-addEventListener("touchend", e => { if (fromNetUI(e)) return; for (const t of e.changedTouches) handleTouchEnd(t.identifier); e.preventDefault(); }, { passive: false });
-addEventListener("touchcancel", e => { if (fromNetUI(e)) return; for (const t of e.changedTouches) handleTouchEnd(t.identifier); e.preventDefault(); }, { passive: false });
+addEventListener("touchend", e => { if (fromNetUI(e) || fromDOMMobileControls(e)) return; for (const t of e.changedTouches) handleTouchEnd(t.identifier); e.preventDefault(); }, { passive: false });
+addEventListener("touchcancel", e => { if (fromNetUI(e) || fromDOMMobileControls(e)) return; for (const t of e.changedTouches) handleTouchEnd(t.identifier); e.preventDefault(); }, { passive: false });
 addEventListener("mousedown", e => { if (fromNetUI(e)) return; if (match.scene === "title") { confirmEdge = true; anyKeyEdge = true; } });
 
 // per-frame snapshot
@@ -1493,7 +1497,9 @@ function drawCinematicPortrait(f, x, y, h, flip, alpha) {
 let frameCount = 0;
 function render() {
   syncNetUI();                 // show/hide the lobby HTML overlay on scene change
-  if (isTouch) buildTouchControls();
+  syncMobileUI();              // scene-aware DOM control state
+  if (isTouch && !usesDOMMobileControls()) buildTouchControls();
+  else if (usesDOMMobileControls() && touchButtons.length) clearTouch();
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, VW, VH);
 
@@ -1528,6 +1534,17 @@ function render() {
   // touch controls
   drawTouchControls();
   frameCount++;
+}
+
+function syncMobileUI() {
+  const controls = domMobileControls;
+  if (!controls) return;
+  const cinematic = !!match.specialSeq;
+  if (cinematic && !controls.classList.contains("cinematic-hidden")) {
+    window.dispatchEvent(new Event("cfc:release-mobile-controls"));
+  }
+  controls.classList.toggle("cinematic-hidden", cinematic);
+  controls.classList.toggle("game-started", match.scene !== "title");
 }
 
 // ---------- menus ----------
@@ -1720,6 +1737,7 @@ function buildTouchControls() {
 }
 function drawTouchControls() {
   if (match.specialSeq) return;
+  if (usesDOMMobileControls()) return;
   if (!isTouch || touchButtons.length === 0) return;
   ctx.save();
   for (const b of touchButtons) {
